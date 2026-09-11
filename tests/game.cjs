@@ -1,0 +1,31 @@
+const fs=require('fs'),vm=require('vm');
+const assert=require('node:assert/strict');
+const html=fs.readFileSync(require('node:path').join(__dirname,'..','index.html'),'utf8');
+const code=html.match(/<script>([\s\S]*?)<\/script>/)[1];
+function setup(){const els={};const elem=()=>({style:{},textContent:'',innerHTML:'',appendChild(){},querySelector(){return {}},clientWidth:390,clientHeight:844,getContext(){return {setTransform(){}}}}); const alerts=[];const ctx={document:{getElementById(id){return els[id]??=elem()},createElement:elem},window:{devicePixelRatio:1},addEventListener(){},requestAnimationFrame(){},alert:s=>alerts.push(s),location:{reload(){}},Math};vm.createContext(ctx);vm.runInContext(code,ctx);return {run:s=>vm.runInContext(s,ctx),els,alerts}}
+let a=setup();console.log('startup',a.els.wave.textContent,a.els.hp.textContent,a.els.coin.textContent);
+a.run('wave=1;running=true;spawnQ=1;spawnT=10;enemies=[{p:.9999,hp:10,max:10,spd:1,boss:false,slow:0}];update(.02)');console.log('HUD after leak',a.run('hp'),a.els.hp.textContent);
+a=setup();a.run('wave=20;running=true;spawnQ=0;enemies=[{p:.9999,hp:10,max:10,spd:1,boss:true,slow:0}];hp=5;update(.02)');console.log('last-wave lethal leak',a.alerts);
+a=setup();a.run("enemies=[{p:.1,hp:0,slow:0},{p:.09,hp:100,slow:0}];fire({...heroes[0],sx:0,sy:.18,r:10000,star:1,cd:0},.02)");console.log('target HP after shooting with dead enemy ahead',a.run('enemies.map(e=>e.hp)'));
+assert.equal(a.run('enemies[1].hp'),84);
+a=setup();a.run('wave=20;hp=5;running=true;spawnQ=0;enemies=[{p:.9999,hp:10,spd:1,boss:true,slow:0}];update(.02);update(.02);startWave()');assert.equal(a.alerts.length,1);assert.match(a.alerts[0],/失守/);assert.equal(a.run('coins'),100);assert.equal(a.run('running'),false);assert.equal(a.els.start.textContent,'基地失守');
+a=setup();a.run('wave=20;running=true;spawnQ=0;update(.02);update(.02)');assert.equal(a.alerts.length,1);assert.match(a.alerts[0],/通关/);assert.equal(a.run('coins'),155);
+a=setup();a.run('wave=2;running=true;spawnQ=1;spawnT=10;enemies=[{p:.2,hp:0,boss:false},{p:.3,hp:0,boss:true}];update(.02);update(.02)');assert.equal(a.run('coins'),142);assert.equal(a.els.coin.textContent,'金币 142');
+a=setup();a.run('wave=2;running=true;spawnQ=1;spawnT=10;enemies=[{p:.9999,hp:10,spd:1,boss:false,slow:0}];update(.02)');assert.equal(a.els.hp.textContent,'基地 19');assert.equal(a.run('coins'),100);
+a=setup();a.run("enemies=[{p:1,hp:20,slow:0}];fire({...heroes[0],sx:0,sy:.18,r:10000,star:1,cd:0},.02)");assert.equal(a.run('shots.length'),0);
+a=setup();a.run("wave=2;running=true;spawnQ=1;spawnT=10;towers=[0,1].map(()=>({...heroes[0],sx:0,sy:.18,r:10000,star:1,cd:0}));enemies=[{p:.2,hp:10,spd:0,slow:0},{p:.1,hp:100,spd:0,slow:0}];update(.02)");assert.equal(a.run('enemies[0].hp'),84);assert.equal(a.run('coins'),102);
+console.log('PASS: targeting, defeat, victory, rewards, HUD, escaped enemies, same-frame attacks');
+a=setup();a.run("el('modal').style.display='none';c.getBoundingClientRect=()=>({left:0,top:0,width:W,height:H});towers=heroes.slice(0,2).map((h,i)=>({...h,star:2,cd:.4,build:3,sx:slots[i][0],sy:slots[i][1]}));c.onpointerdown({clientX:slots[0][0]*W,clientY:slots[0][1]*H})");assert.match(a.els['tower-name'].textContent,/比尔/);assert.match(a.els['tower-stats'].textContent,/24/);
+a.els['move-tower'].onclick();assert.equal(a.els['tower-panel'].hidden,true);a.run('c.onpointerdown({clientX:slots[1][0]*W,clientY:slots[1][1]*H})');assert.equal(a.run('moving'),true);a.run('c.onpointerdown({clientX:slots[4][0]*W,clientY:slots[4][1]*H})');assert.equal(a.run('moving'),false);assert.equal(a.run('towers[0].sx'),.42);assert.equal(a.run('towers[0].cd'),.4);assert.equal(a.run('towers[0].star'),2);assert.equal(a.run('towers[0].build'),3);assert.equal(a.run('slots.find(s=>!towerAtSlot(s))[0]'),.2);
+a.els['destroy-tower'].onclick();assert.equal(a.run('towers.length'),2);a.els['destroy-tower'].onclick();assert.equal(a.run('towers.length'),1);assert.equal(a.run('coins'),100);assert.equal(a.els['tower-panel'].hidden,true);
+a.run('selectedTower=towers[0];running=true;towerDetails()');a.els['move-tower'].onclick();assert.equal(a.els.start.disabled,false);a.els.start.onclick();assert.equal(a.run('moving'),false);assert.equal(a.els.start.disabled,true);
+console.log('PASS: selection, stats, occupied-slot rejection, movement state preservation, slot reuse, destroy confirmation, combat move cancellation');
+a=setup();assert.equal(a.run('activeChoice.length'),3);assert.equal(a.run('new Set(activeChoice).size'),3);a.run('startWave()');assert.equal(a.run('wave'),0);a.run('chooseHero(activeChoice[0])');assert.equal(a.run('towers.length'),1);assert.equal(a.run('coins'),100);
+a.run('choice(true)');assert.equal(a.run('coins'),50);assert.equal(a.els.coin.textContent,'金币 50');a.run('choice(true)');assert.equal(a.run('coins'),50);a.run('const picked=activeChoice[0];chooseHero(picked);chooseHero(picked)');assert.equal(a.run('towers.reduce((n,t)=>n+t.star,0)'),2);
+a.run('coins=49;choice(true)');assert.equal(a.run('activeChoice'),null);assert.equal(a.run('coins'),49);a.run('coins=100;running=true;choice(true)');assert.equal(a.run('coins'),100);assert.equal(a.run('activeChoice'),null);
+a=setup();a.run('activeChoice=null;towers=heroes.map((h,i)=>({...h,star:5,cd:0,build:0,sx:slots[i][0],sy:slots[i][1]}));choice(true)');assert.equal(a.run('coins'),100);assert.equal(a.run('activeChoice'),null);a.run('choice()');assert.equal(a.run('coins'),150);
+a.run('towers[3].star=4;choice(true)');assert.equal(a.run('activeChoice.length'),1);assert.equal(a.run('activeChoice[0]'),'pea');a.run('chooseHero("pea")');assert.equal(a.run('towers[3].star'),5);assert.equal(a.els.recruit.disabled,true);
+a.run('towers.splice(1,1);choice(true)');assert.equal(a.run('activeChoice[0]'),'ryu');a.run('chooseHero("ryu")');assert.equal(a.run('new Set(towers.map(t=>t.sx+","+t.sy)).size'),6);
+assert.ok(html.includes('\n.tower-panel{'));assert.ok(!html.includes('\n+.tower-panel'));assert.ok(html.includes('随机塔防 V0.2'));
+console.log('PASS: paid/free recruitment, duplicate clicks, insufficient funds, combat lock, capped heroes, compensation, reclaimed slots, V0.2 markup');
+
