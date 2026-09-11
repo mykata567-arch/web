@@ -3,19 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>随机塔防 Demo V0.1</title>
+<title>随机塔防 V0.2</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;height:100%;background:#0f141d;color:#fff;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}body{display:flex;justify-content:center;overflow:hidden}#app{width:min(100vw,520px);height:100vh;position:relative;background:#151c27}canvas{width:100%;height:100%;display:block;touch-action:none}.panel{position:absolute;left:12px;right:12px;top:12px;display:flex;gap:8px;pointer-events:none}.pill{background:#202a38cc;border:1px solid #3a485c;border-radius:12px;padding:7px 10px;font-size:13px}.bottom{position:absolute;left:0;right:0;bottom:18px;text-align:center}button{border:0;border-radius:14px;padding:12px 24px;background:#4e86ff;color:#fff;font-weight:700;font-size:16px}.modal{position:absolute;inset:0;background:#07101acc;display:none;align-items:center;justify-content:center;padding:18px}.box{width:100%;background:#202a38;border:1px solid #526079;border-radius:20px;padding:16px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.card{background:#2b3748;border:1px solid #53647c;border-radius:16px;padding:12px 8px;min-height:180px;text-align:center}.icon{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;margin:0 auto 8px;color:#111;font-weight:900;font-size:22px}.small{font-size:12px;color:#aeb8c8;line-height:1.45}.card button{margin-top:10px;width:100%;padding:8px;font-size:13px}.title{font-size:24px;font-weight:900;text-align:center;margin-bottom:12px}.hint{text-align:center;color:#9aa8bb;font-size:12px;margin-top:10px}
 
-+.tower-panel{position:absolute;left:12px;right:12px;bottom:78px;background:#172332f2;border:1px solid #7185a1;border-radius:14px;padding:12px;box-shadow:0 6px 24px #0008}.tower-panel[hidden]{display:none}.tower-panel p{margin:6px 0;font-size:13px;line-height:1.5}.actions{display:flex;gap:8px;margin-top:8px}.actions button{padding:9px 12px;font-size:13px;flex:1}.actions .danger{background:#a63e46}button:disabled{opacity:.5}.tower-panel .close{float:right;padding:5px 10px;background:#36465a;font-size:12px}
+.tower-panel{position:absolute;left:12px;right:12px;bottom:78px;background:#172332f2;border:1px solid #7185a1;border-radius:14px;padding:12px;box-shadow:0 6px 24px #0008}.tower-panel[hidden]{display:none}.tower-panel p{margin:6px 0;font-size:13px;line-height:1.5}.actions{display:flex;gap:8px;margin-top:8px}.actions button{padding:9px 12px;font-size:13px;flex:1}.actions .danger{background:#a63e46}button:disabled{opacity:.5}.tower-panel .close{float:right;padding:5px 10px;background:#36465a;font-size:12px}
+.bottom{display:flex;justify-content:center;gap:8px;padding:0 12px}.bottom button{padding:12px 14px;font-size:14px}.modal{overflow:auto}.cards{grid-template-columns:repeat(auto-fit,minmax(80px,1fr))}.version{position:absolute;top:49px;right:12px;font-size:11px;color:#aeb8c8;pointer-events:none}#move-hint{position:absolute;bottom:76px;left:12px;right:12px;text-align:center;color:#a9f4ce;background:#172332e8;border-radius:8px;padding:7px;font-size:12px;pointer-events:none}#move-hint[hidden]{display:none}@media(max-height:500px){.modal{align-items:flex-start}.tower-panel{max-height:65vh;overflow:auto}}
 </style>
 </head>
 <body><div id="app">
 <canvas id="c"></canvas>
 <div class="panel"><div class="pill" id="wave">波次 0/20</div><div class="pill" id="hp">基地 20</div><div class="pill" id="coin">金币 100</div></div>
-<div class="bottom"><button id="start">开始第 1 波</button></div>
+<div class="version">随机塔防 V0.2</div><div id="move-hint" hidden role="status">点击绿色空塔位移动</div><div class="bottom"><button id="start">开始第 1 波</button><button id="recruit">招募 · 50 金币</button></div>
 <section id="tower-panel" class="tower-panel" hidden aria-label="塔详情"><button id="close-tower" class="close">关闭</button><b id="tower-name"></b><p id="tower-stats"></p><p id="tower-skill"></p><p id="tower-hint" role="status"></p><div class="actions"><button id="move-tower">移动</button><button id="destroy-tower" class="danger">摧毁</button></div></section>
-<div class="modal" id="modal"><div class="box"><div class="title">随机 3 选 1</div><div class="cards" id="cards"></div><div class="hint">新角色上阵 · 重复角色升星</div></div></div>
+<div class="modal" id="modal"><div class="box"><div class="title" id="choice-title">免费招募</div><div class="cards" id="cards"></div><div class="hint">新角色上阵 · 重复角色升星 · 最高五星<br>点击塔可查看、移动或摧毁；每波结束后可用金币招募。</div></div></div>
 </div>
 <script>
 const c=document.getElementById('c'),x=c.getContext('2d'),D=window.devicePixelRatio||1;
@@ -30,11 +31,46 @@ const heroes=[
 const path=[[0,.18],[.78,.18],[.78,.36],[.22,.36],[.22,.56],[.82,.56],[.82,.75],[.16,.75],[.16,.9],[1,.9]];
 const slots=[[.2,.11],[.52,.28],[.12,.47],[.56,.48],[.42,.69],[.66,.84]];
 let wave=0,hp=20,coins=100,towers=[],enemies=[],shots=[],running=false,spawnQ=0,spawnT=0,last=0;
+const RECRUIT_COST=50;
+let activeChoice=null;
 let selectedTower=null,moving=false,destroyArmed=false;
-const el=id=>document.getElementById(id);function ui(){el('wave').textContent=`波次 ${wave}/20`;el('hp').textContent=`基地 ${hp}`;el('coin').textContent=`金币 ${coins}`;el('start').textContent=moving?'取消移动':hp<=0?'基地失守':running?'战斗中…':wave>=20?'已通关':`开始第 ${wave+1} 波`;el('start').disabled=!moving&&(hp<=0||running||wave>=20)}
+const el=id=>document.getElementById(id);function ui(){el('wave').textContent=`波次 ${wave}/20`;el('hp').textContent=`基地 ${hp}`;el('coin').textContent=`金币 ${coins}`;el('start').textContent=moving?'取消移动':hp<=0?'基地失守':running?'战斗中…':wave>=20?'已通关':`开始第 ${wave+1} 波`;el('start').disabled=!moving&&(hp<=0||running||wave>=20||!!activeChoice);
+  const pool=eligibleHeroes();
+  el('recruit').textContent=!pool.length?'全部满星':coins<RECRUIT_COST?'金币不足 · 50':running?'战斗后招募':'招募 · 50 金币';
+  el('recruit').disabled=hp<=0||running||wave>=20||moving||!!activeChoice||coins<RECRUIT_COST||!pool.length;
+  el('move-hint').hidden=!moving;
+}
 function posAt(t){t=Math.max(0,Math.min(.999,t));let lens=[],sum=0;for(let i=0;i<path.length-1;i++){let a=path[i],b=path[i+1],l=Math.hypot((b[0]-a[0])*W,(b[1]-a[1])*H);lens.push(l);sum+=l}let d=t*sum,s=0;for(let i=0;i<lens.length;i++){if(d<=s+lens[i]){let a=path[i],b=path[i+1],q=(d-s)/lens[i];return [W*(a[0]+(b[0]-a[0])*q),H*(a[1]+(b[1]-a[1])*q)]}s+=lens[i]}return [W,H*.9]}
-function choice(){closeTower();let modal=el('modal'),cards=el('cards');cards.innerHTML='';[...heroes].sort(()=>Math.random()-.5).slice(0,3).forEach(h=>{let own=towers.find(t=>t.id===h.id),d=document.createElement('div');d.className='card';d.innerHTML=`<div class="icon" style="background:${h.col}">${h.g}</div><b>${h.n}</b><div class="small">${h.txt}<br>${own?`已有 ★${own.star}`:'新角色 ★1'}</div><button>选择</button>`;d.querySelector('button').onclick=()=>{if(own){own.star=Math.min(5,own.star+1)}else if(towers.length<6){let s=slots.find(s=>!towerAtSlot(s));towers.push({...h,star:1,cd:0,sx:s[0],sy:s[1],build:0})}modal.style.display='none';ui()};cards.appendChild(d)});modal.style.display='flex'}
-function startWave(){if(hp<=0||running||wave>=20)return;wave++;running=true;spawnQ=8+wave*2+(wave%5===0?1:0);spawnT=0;ui()}
+function eligibleHeroes(){
+  return heroes.filter(h=>{const own=towers.find(t=>t.id===h.id);return own?own.star<5:slots.some(s=>!towerAtSlot(s))});
+}
+function chooseHero(id){
+  if(!activeChoice||!activeChoice.includes(id))return;
+  const h=heroes.find(h=>h.id===id),own=towers.find(t=>t.id===id);
+  if(own){if(own.star>=5)return;own.star++}
+  else{const slot=slots.find(s=>!towerAtSlot(s));if(!slot)return;towers.push({...h,star:1,cd:0,sx:slot[0],sy:slot[1],build:0})}
+  activeChoice=null;el('modal').style.display='none';ui();
+}
+function choice(paid=false){
+  if(activeChoice||running||hp<=0||wave>=20)return false;
+  const pool=eligibleHeroes();
+  if(!pool.length){if(!paid){coins+=RECRUIT_COST;ui()}return false}
+  if(paid&&coins<RECRUIT_COST)return false;
+  closeTower();
+  if(paid)coins-=RECRUIT_COST;
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  const offers=pool.slice(0,3);activeChoice=offers.map(h=>h.id);
+  el('choice-title').textContent=(paid?'金币招募':'免费招募')+' · '+offers.length+' 选 1';
+  const cards=el('cards');cards.innerHTML='';
+  offers.forEach(h=>{
+    const own=towers.find(t=>t.id===h.id),d=document.createElement('div');d.className='card';
+    d.innerHTML=`<div class="icon" style="background:${h.col}">${h.g}</div><b>${h.n}</b><div class="small">${h.txt}<br>${own?'★'+own.star+' → ★'+(own.star+1):'新角色 ★1'}</div><button>选择</button>`;
+    d.querySelector('button').onclick=()=>chooseHero(h.id);cards.appendChild(d);
+  });
+  el('modal').style.display='flex';ui();return true;
+}
+el('recruit').onclick=()=>choice(true);
+function startWave(){if(hp<=0||running||wave>=20||activeChoice)return;wave++;running=true;spawnQ=8+wave*2+(wave%5===0?1:0);spawnT=0;ui()}
 
 function towerAtSlot(s){return towers.find(t=>t.sx===s[0]&&t.sy===s[1])}
 function closeTower(){selectedTower=null;moving=false;destroyArmed=false;el('tower-panel').hidden=true;ui()}
@@ -50,7 +86,7 @@ function towerDetails(){
   el('destroy-tower').textContent=destroyArmed?'确认摧毁':'摧毁';
 }
 el('close-tower').onclick=closeTower;
-el('move-tower').onclick=()=>{if(!selectedTower)return;moving=!moving;destroyArmed=false;towerDetails()};
+el('move-tower').onclick=()=>{if(!selectedTower)return;moving=!moving;el('move-hint').textContent='点击绿色空塔位移动，或点击下方取消移动。';destroyArmed=false;towerDetails()};
 el('destroy-tower').onclick=()=>{
   if(!selectedTower)return;
   if(!destroyArmed){destroyArmed=true;moving=false;towerDetails();return}
@@ -62,7 +98,7 @@ c.onpointerdown=e=>{
   const slot=slots.find(s=>Math.hypot(px-s[0]*W,py-s[1]*H)<=28);
   if(moving&&selectedTower){
     if(slot&&!towerAtSlot(slot)){selectedTower.sx=slot[0];selectedTower.sy=slot[1];moving=false;towerDetails()}
-    else el('tower-hint').textContent='请选择绿色的空塔位，已占用的位置不能移动。';
+    else el('move-hint').textContent='请选择绿色空塔位；已占用的位置不能移动。';
     return;
   }
   const t=slot&&towerAtSlot(slot);
@@ -87,6 +123,7 @@ function update(dt){
   // Resolve defeat before attacks, rewards, or wave completion.
   if(hp<=0){
     running=false;
+    closeTower();
     ui();
     alert('基地失守，重新开始吧。');
     location.reload();
@@ -110,4 +147,3 @@ function update(dt){
 function draw(){x.clearRect(0,0,W,H);x.fillStyle='#151c27';x.fillRect(0,0,W,H);x.lineCap='round';x.lineJoin='round';x.strokeStyle='#384659';x.lineWidth=44;x.beginPath();path.forEach((p,i)=>{let X=p[0]*W,Y=p[1]*H;i?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke();x.strokeStyle='#65758d';x.lineWidth=2;x.stroke();slots.forEach((s,i)=>{let X=s[0]*W,Y=s[1]*H;x.beginPath();x.arc(X,Y,25,0,Math.PI*2);x.fillStyle=moving&&!towerAtSlot(s)?'#235d49':'#202a38';x.fill();x.strokeStyle=moving&&!towerAtSlot(s)?'#70efb5':'#4e5d72';x.stroke()});if(selectedTower){x.beginPath();x.arc(selectedTower.sx*W,selectedTower.sy*H,selectedTower.r,0,Math.PI*2);x.fillStyle='#7eb9ff18';x.fill();x.strokeStyle='#9dcbff';x.lineWidth=1;x.stroke()}for(let t of towers){let X=t.sx*W,Y=t.sy*H;x.beginPath();x.arc(X,Y,21,0,Math.PI*2);x.fillStyle=t.col;x.fill();x.strokeStyle='#fff';x.stroke();x.fillStyle='#111';x.font='bold 14px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(t.g,X,Y);x.fillStyle='#ffd85a';x.font='11px sans-serif';x.fillText('★'.repeat(t.star),X,Y+32);x.font='10px sans-serif';x.fillStyle='#dfeaff';x.fillText(t.txt,X,Y-30)}for(let e of enemies){let [X,Y]=posAt(e.p);x.beginPath();x.arc(X,Y,e.boss?18:11,0,Math.PI*2);x.fillStyle=e.boss?'#d84c99':'#d65f67';x.fill();if(e.slow>0){x.strokeStyle='#9de6ff';x.stroke()}x.fillStyle='#111';x.fillRect(X-16,Y-20,32,4);x.fillStyle='#75df78';x.fillRect(X-16,Y-20,32*Math.max(0,e.hp/e.max),4)}for(let s of shots){x.globalAlpha=Math.min(1,s.life*10);x.strokeStyle=s.col;x.lineWidth=3;x.beginPath();x.moveTo(s.x1,s.y1);x.lineTo(s.x2,s.y2);x.stroke()}x.globalAlpha=1}
 function loop(ts){let now=ts/1000,dt=Math.min(.033,last?now-last:.016);last=now;update(dt);draw();requestAnimationFrame(loop)}ui();requestAnimationFrame(loop);
 </script></body></html>
-
