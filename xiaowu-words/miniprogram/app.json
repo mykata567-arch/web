@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "pages/words/words",
+    "pages/review/review",
+    "pages/family/family",
+    "pages/add/add",
+    "pages/detail/detail"
+  ],
+  "window": {
+    "navigationBarTitleText": "小五易错字",
+    "navigationBarBackgroundColor": "#F8F6EF",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F8F6EF"
+  },
+  "usingComponents": { "word-card": "/components/word-card/word-card" },
+  "sitemapLocation": "sitemap.json"
+}

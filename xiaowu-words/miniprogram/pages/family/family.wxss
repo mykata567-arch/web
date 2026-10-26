@@ -1,0 +1,4 @@
+.member { display: flex; align-items: center; justify-content: space-between; padding: 18rpx 0; border-bottom: 2rpx solid #edf0e7; }
+.invite-code { font-family: monospace; font-size: 34rpx; font-weight: 700; letter-spacing: 2rpx; color: #28664c; word-break: break-all; background: #f0f4e9; padding: 22rpx; border-radius: 18rpx; }
+.back { margin-top: 28rpx; }
+.section { margin-top: 0; }

@@ -1,0 +1,9 @@
+<view class="word-card" bindtap="open" aria-role="button" aria-label="查看{{word.character}}的详情">
+  <view class="character">{{word.character}}</view>
+  <view class="content">
+    <view class="phrase">{{word.phraseText}}</view>
+    <view class="meta">{{word.stageLabel}}</view>
+    <view class="meta">{{word.nextLabel}}</view>
+  </view>
+  <view class="errors"><text class="count">{{word.errorCount}}</text><text>次出错</text></view>
+</view>

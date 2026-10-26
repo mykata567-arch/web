@@ -1,0 +1,8 @@
+{
+  "collections": ["users", "families", "children", "invites", "words", "reviews", "operations"],
+  "indexes": [
+    { "collection": "words", "name": "family_child_id", "fields": [{ "field": "familyId", "direction": "asc" }, { "field": "childId", "direction": "asc" }, { "field": "id", "direction": "asc" }] },
+    { "collection": "reviews", "name": "family_child_word_history", "fields": [{ "field": "familyId", "direction": "asc" }, { "field": "childId", "direction": "asc" }, { "field": "wordId", "direction": "asc" }, { "field": "createdAt", "direction": "desc" }, { "field": "id", "direction": "desc" }] },
+    { "collection": "reviews", "name": "family_child_day_type", "fields": [{ "field": "familyId", "direction": "asc" }, { "field": "childId", "direction": "asc" }, { "field": "date", "direction": "asc" }, { "field": "type", "direction": "asc" }, { "field": "id", "direction": "asc" }] }
+  ]
+}

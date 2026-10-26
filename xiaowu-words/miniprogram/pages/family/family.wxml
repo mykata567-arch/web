@@ -1,0 +1,17 @@
+<view class="page">
+  <view class="eyebrow">爸爸、妈妈、外婆，一起陪孩子</view><view class="title">家庭字本</view>
+  <view wx:if="loading" class="loading">正在连接家庭…</view>
+  <view wx:elif="error" class="card stack"><view class="notice error">{{error}}</view><button class="primary" bindtap="load">重新连接</button></view>
+  <block wx:elif="family">
+    <view class="card"><view class="section">{{family.name}}</view><view class="muted">已经加入的家人</view><view class="member" wx:for="{{family.members}}" wx:key="key">{{item.name}}<text wx:if="item.creator" class="badge">创建者</text></view></view>
+    <view wx:if="family.canInvite" class="card stack"><view class="section">邀请家人加入</view><view class="invite-code" user-select>{{family.inviteCode}}</view><view class="hint">有效至 {{expires}}。将邀请码私下发给家人，对方在同一个小程序中填写即可加入。加入后可以查看和修改全部字本记录。</view><button class="primary" bindtap="copy">复制邀请码</button><button class="ghost" bindtap="rotate" disabled="{{busy}}" loading="{{busy}}">更新邀请码</button></view>
+    <view wx:else class="notice">你已加入这个家庭，可以添加、修改、删除错字，也可以陪孩子完成听写。</view>
+    <button class="primary back" bindtap="backToWords">打开家庭易错字本</button>
+  </block>
+  <block wx:else>
+    <view class="notice">首次使用由一位家人创建字本，其余家人使用各自微信账号，通过邀请码加入同一本。</view>
+    <view class="card"><text class="field-label">家人怎么称呼你</text><input data-field="memberName" value="{{memberName}}" bindinput="input" maxlength="20" disabled="{{busy}}" placeholder="例如：爸爸、妈妈、外婆" /></view>
+    <view class="card stack"><view class="section">第一次使用，创建家庭</view><input data-field="name" value="{{name}}" bindinput="input" maxlength="20" disabled="{{busy}}" placeholder="给字本取个名字" /><button class="primary" bindtap="create" disabled="{{busy || !name || !memberName}}" loading="{{busy}}">创建家庭字本</button><view class="hint">创建后可主动导入现有的25个易错字。</view></view>
+    <view class="card stack"><view class="section">已经有邀请码，直接加入</view><input data-field="code" value="{{code}}" bindinput="input" maxlength="30" disabled="{{busy}}" placeholder="粘贴家人发来的16位邀请码" /><button class="secondary" bindtap="join" disabled="{{busy || !code || !memberName}}" loading="{{busy}}">加入家人的字本</button></view>
+  </block>
+</view>

@@ -1,0 +1,7 @@
+.selection-row { display: flex; flex-wrap: wrap; align-items: center; gap: 22rpx; padding: 24rpx; }
+.row-label { min-width: 112rpx; font-size: 28rpx; color: #65745f; }
+.characters { display: flex; flex-wrap: wrap; gap: 14rpx; }
+.char { height: 82rpx; width: 82rpx; border-radius: 18rpx; background: #f2f3ed; border: 2rpx solid #e1e6da; display: flex; align-items: center; justify-content: center; font-size: 43rpx; }
+.char.chosen { background: #28664c; color: #fff; border-color: #28664c; }
+.save-area { margin-top: 24rpx; }
+.save-area button { margin-top: 18rpx; }

@@ -1,0 +1,1 @@
+{ "name": "xiaowu-init-user", "version": "0.1.0", "main": "index.js", "private": true, "dependencies": { "wx-server-sdk": "4.0.2" } }

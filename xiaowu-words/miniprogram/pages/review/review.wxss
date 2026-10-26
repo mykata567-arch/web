@@ -1,0 +1,6 @@
+.dictation-card { margin-top: 28rpx; padding: 42rpx 28rpx; border-radius: 32rpx; background: #fff; border: 2rpx solid #e5e9dd; text-align: center; }
+.masked-phrase { font-size: 57rpx; line-height: 1.6; font-weight: 650; margin: 34rpx 0; word-break: break-all; }
+.answer-character { margin: 22rpx auto; width: 180rpx; height: 180rpx; background: #f0f3e8; border-radius: 24rpx; line-height: 180rpx; font-size: 128rpx; font-family: "Kaiti SC", KaiTi, STKaiti, serif; color: #2e5e40; }
+.full-phrase { font-size: 34rpx; color: #657861; }
+.answer-buttons { display: flex; gap: 20rpx; margin-top: 28rpx; }
+.answer-buttons button { flex: 1; }
