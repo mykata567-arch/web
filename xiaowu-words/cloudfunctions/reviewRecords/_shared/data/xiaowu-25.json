@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "recordedDate": "2026-10-25",
+  "description": "匿名学习样本；仅在用户主动导入时使用；不包含孩子身份资料",
+  "items": [
+    { "phrase": "那些", "characters": ["些"] },
+    { "phrase": "山顶", "characters": ["顶"] },
+    { "phrase": "形状", "characters": ["形", "状"] },
+    { "phrase": "天狗", "characters": ["狗"] },
+    { "phrase": "座位", "characters": ["座"] },
+    { "phrase": "山区", "characters": ["区"] },
+    { "phrase": "群山", "characters": ["群"] },
+    { "phrase": "灯光", "characters": ["灯"] },
+    { "phrase": "细雨", "characters": ["细"] },
+    { "phrase": "中外", "characters": ["外"] },
+    { "phrase": "湖水", "characters": ["湖"] },
+    { "phrase": "胜利", "characters": ["利"] },
+    { "phrase": "弯曲", "characters": ["弯", "曲"] },
+    { "phrase": "出现", "characters": ["现"] },
+    { "phrase": "成就", "characters": ["就"] },
+    { "phrase": "枝叶", "characters": ["枝"] },
+    { "phrase": "好客", "characters": ["客"] },
+    { "phrase": "老乡", "characters": ["乡"] },
+    { "phrase": "城市", "characters": ["市"] },
+    { "phrase": "味道", "characters": ["味", "道"] },
+    { "phrase": "小孔", "characters": ["孔"] },
+    { "phrase": "顶楼", "characters": ["顶", "楼"] }
+  ]
+}

@@ -1,0 +1,7 @@
+.word-card { display: flex; align-items: center; gap: 22rpx; padding: 24rpx; background: #fff; border: 2rpx solid #e8eadf; border-radius: 24rpx; margin-bottom: 16rpx; }
+.character { width: 92rpx; height: 92rpx; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 52rpx; background: #f0f2e8; color: #34563e; border-radius: 20rpx; }
+.content { flex: 1; min-width: 0; }
+.phrase { font-size: 29rpx; font-weight: 600; word-break: break-all; }
+.meta { font-size: 22rpx; color: #7a8478; line-height: 1.7; }
+.errors { display: flex; flex-direction: column; text-align: center; flex-shrink: 0; font-size: 20rpx; color: #8c7b61; }
+.count { font-size: 32rpx; color: #795d3c; font-weight: 650; }

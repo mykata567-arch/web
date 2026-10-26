@@ -1,0 +1,11 @@
+.character-large { font-size: 140rpx; text-align: center; line-height: 1.5; font-family: "Kaiti SC", KaiTi, STKaiti, serif; }
+.centered { text-align: center; }
+.info { display: flex; justify-content: space-between; gap: 16rpx; padding-top: 18rpx; font-size: 26rpx; }
+.info text:first-child { color: #7c8477; }
+.edit-button { margin-top: 24rpx; }
+.history-row { padding: 22rpx 0; border-bottom: 2rpx solid #edf0e6; }
+.history-row:last-child { border: none; }
+.history-date { font-size: 22rpx; color: #83917d; }
+.history-row .hint { margin-top: 4rpx; }
+.history-card { padding-top: 8rpx; }
+.delete-link { text-align: center; color: #a0624d; padding: 24rpx; font-size: 25rpx; }

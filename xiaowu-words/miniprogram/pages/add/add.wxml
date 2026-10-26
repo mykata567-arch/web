@@ -1,0 +1,27 @@
+<view class="page">
+  <view class="eyebrow">家长录入</view><view class="title">今天，哪些字不会写？</view>
+  <view class="subtitle">先输入词语，再点选具体的错字。</view>
+  <view wx:if="saved" class="card stack">
+    <view class="empty-title">已经记好啦</view>
+    <view>新增 {{saved.added}} 个字，更新 {{saved.updated}} 个已有的字。</view>
+    <view class="hint">明天会自动安排复习。同一个字会合并保留，错误次数继续累计。</view>
+    <button class="primary" bindtap="finish">去易错字本看看</button><button class="ghost" bindtap="again">继续录入</button>
+  </view>
+  <block wx:else>
+    <view class="card stack">
+      <text class="field-label">词语，用逗号、顿号或换行分开</text>
+      <textarea value="{{text}}" bindinput="onInput" maxlength="500" disabled="{{pending}}" placeholder="例如：形状、山顶、弯曲" aria-label="输入听写词语" auto-height />
+      <button class="secondary" bindtap="parse" disabled="{{!text || pending}}">拆成汉字，开始选择</button>
+    </view>
+    <view wx:if="rows.length" class="section">点亮孩子不会写的字</view>
+    <view wx:for="{{rows}}" wx:key="phrase" wx:for-item="row" wx:for-index="rowIndex" class="card selection-row">
+      <view class="row-label">{{row.phrase}}</view>
+      <view class="characters"><view wx:for="{{row.characters}}" wx:key="character" class="char {{item.selected ? 'chosen' : ''}}" data-row="{{rowIndex}}" data-index="{{index}}" bindtap="toggle" aria-role="checkbox" aria-checked="{{item.selected}}">{{item.character}}</view></view>
+    </view>
+    <view wx:if="rows.length" class="save-area">
+      <view class="hint">已选 {{selectedCount}} 个不同的字。同一字在不同词语中出错，会分别累计次数。</view>
+      <view wx:if="pending &amp;&amp; !saving" class="notice error">保存结果暂未确认，请重试这次保存。重复点击不会多算错误。</view>
+      <button class="primary" bindtap="save" loading="{{saving}}" disabled="{{saving || !selectedCount}}">{{pending ? '重试保存本次记录' : '保存易错字 · ' + selectedCount + '字'}}</button>
+    </view>
+  </block>
+</view>

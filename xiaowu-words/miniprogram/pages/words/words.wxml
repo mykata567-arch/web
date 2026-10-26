@@ -1,0 +1,21 @@
+<view class="page">
+  <view class="row"><view class="eyebrow">一家人，一本易错字</view><text class="link" bindtap="family">家庭 ›</text></view>
+  <view class="title">{{family.name || '小五易错字'}}</view>
+  <view wx:if="loading" class="loading">正在整理字本…</view>
+  <view wx:elif="error" class="card stack"><view class="notice error">{{error}}</view><button class="primary" bindtap="load">重新加载</button></view>
+  <view wx:elif="needsFamily" class="card stack"><view class="empty-title">先和家人共用一个字本</view><view class="muted">爸爸创建家庭，妈妈、外婆填写邀请码加入，就能一起记录和复习。</view><button class="primary" bindtap="family">创建家庭 / 邀请码加入</button></view>
+  <block wx:else>
+    <view class="summary-card">
+      <view class="counts"><view><text class="number">{{total}}</text><text>个易错字</text></view><view><text class="number">{{due}}</text><text>个今天待复习</text></view></view>
+      <button class="primary" bindtap="review" disabled="{{!due}}">{{due ? '开始今日听写' : '今天没有待复习的字'}}</button>
+      <view class="hint">每轮最多10个字 · 重新打开或下拉可同步家人的最新记录</view>
+    </view>
+    <view class="row section"><text>错字本</text><button class="secondary small" bindtap="add">＋ 添加错字</button></view>
+    <input placeholder="搜索汉字或词语" value="{{query}}" bindinput="search" maxlength="30" confirm-type="search" aria-label="搜索汉字或词语" />
+    <view class="filters"><view class="filter {{filter === 'all' ? 'selected' : ''}}" data-filter="all" bindtap="chooseFilter">全部</view><view class="filter {{filter === 'due' ? 'selected' : ''}}" data-filter="due" bindtap="chooseFilter">待复习</view><view class="filter {{filter === 'mastered' ? 'selected' : ''}}" data-filter="mastered" bindtap="chooseFilter">已掌握</view></view>
+    <view wx:if="!shown.length" class="card empty"><view class="empty-title">{{total ? '没有找到符合条件的字' : '还没有记录易错字'}}</view><view>{{total ? '换个关键词或筛选条件试试。' : '输入“形状、山顶”，再选择不会写的字。'}}</view></view>
+    <word-card wx:for="{{shown}}" wx:key="id" word="{{item}}" bind:openword="openWord" />
+    <button wx:if="!total" class="ghost" bindtap="importSample" loading="{{importing}}" disabled="{{importing}}">导入小五现有的25个易错字</button>
+    <view wx:if="shown.length" class="hint">点击一个字，可修改词语、删除或查看复习记录。</view>
+  </block>
+</view>

@@ -1,0 +1,13 @@
+{
+  "name": "xiaowu-words",
+  "version": "0.1.0",
+  "private": true,
+  "description": "微信原生易错字记录与间隔复习工具",
+  "scripts": {
+    "build:cloud": "node scripts/bundle-cloud.cjs",
+    "check": "node scripts/check.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "verify": "npm run build:cloud && npm run check && npm test"
+  },
+  "engines": { "node": ">=18" }
+}

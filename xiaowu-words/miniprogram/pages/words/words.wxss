@@ -1,0 +1,6 @@
+.filters { display: flex; gap: 16rpx; margin: 24rpx 0; }
+.filter { padding: 14rpx 22rpx; border-radius: 18rpx; background: #eceee5; color: #6d7d69; font-size: 25rpx; }
+.filter.selected { background: #28664c; color: #fff; }
+.summary-card { padding: 28rpx; border-radius: 30rpx; background: #e7eddf; }
+.counts { display: flex; gap: 44rpx; margin-bottom: 24rpx; color: #62785a; font-size: 24rpx; }
+.number { display: block; color: #284f39; font-size: 58rpx; font-weight: 700; line-height: 1.3; }

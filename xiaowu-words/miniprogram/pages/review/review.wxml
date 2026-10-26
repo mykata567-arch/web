@@ -1,0 +1,21 @@
+<view class="page">
+  <view class="eyebrow">每天一点，慢慢记牢</view><view class="title">今日听写</view>
+  <view wx:if="loading" class="loading">正在读取家庭复习任务…</view>
+  <view wx:elif="error" class="card stack"><view class="notice error">{{error}}</view><button class="primary" bindtap="load">重新加载</button></view>
+  <view wx:elif="finished" class="card empty stack"><view class="empty-title">{{total ? '这一轮完成啦' : '今天暂时没有待复习的字'}}</view><view wx:if="total">会了 {{correctCount}} 个，还不会 {{wrongCount}} 个。</view><view class="hint">每次判断都已保存到家庭字本。还不会的字，明天再来。</view><view wx:if="remaining > 0" class="hint">今天还有 {{remaining}} 个字，可以休息后再来。</view><button wx:if="remaining > 0" class="primary" bindtap="load">继续下一轮</button><button class="ghost" bindtap="back">回到错字本</button></view>
+  <block wx:elif="current">
+    <view class="row"><text class="muted">第 {{index}} / {{total}} 个字</text><text class="badge">在纸上写一写</text></view>
+    <view class="dictation-card">
+      <view class="hint">请写出括号里缺少的字</view><view class="masked-phrase">{{maskedPhrase}}</view>
+      <button wx:if="!revealed" class="secondary" bindtap="reveal">写好了，查看正确答案</button>
+      <block wx:else><view class="answer-character">{{current.character}}</view><view class="full-phrase">{{current.phrases[0]}}</view></block>
+    </view>
+    <view wx:if="conflict" class="card stack"><view class="notice">家人已更新或删除这个字。这次没有重复记入，请刷新任务后继续。</view><button class="primary" bindtap="load">刷新复习任务</button></view>
+    <view wx:elif="feedback" class="card stack"><view>{{feedback}}</view><button class="primary" bindtap="next">{{index === total ? '查看本轮结果' : '下一个字'}}</button></view>
+    <view wx:elif="revealed" class="stack">
+      <block wx:if="pending"><view class="hint">本次选择：{{pendingLabel}}</view><button class="primary" bindtap="retry" loading="{{saving}}" disabled="{{saving}}">{{saving ? '正在保存…' : '重试保存这次判断'}}</button></block>
+      <view wx:else class="answer-buttons"><button class="ghost" bindtap="no">还不会</button><button class="primary" bindtap="yes">会了</button></view>
+      <view class="hint">由家长核对纸上的答案，再选择是否会写。</view>
+    </view>
+  </block>
+</view>

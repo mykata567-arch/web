@@ -1,0 +1,28 @@
+<view class="page">
+  <view wx:if="loading" class="loading">正在读取这个字的成长记录…</view>
+  <view wx:elif="error" class="card stack"><view class="notice error">{{error}}</view><button class="primary" bindtap="load">重新加载</button></view>
+  <block wx:elif="word">
+    <view class="character-large">{{word.character}}</view><view class="subtitle centered">{{word.phraseText}}</view>
+    <view class="card">
+      <view class="row"><text>当前阶段</text><text class="badge">{{word.stageLabel}}</text></view>
+      <view class="info"><text>首次记录</text><text>{{word.firstRecordedDate}}</text></view>
+      <view class="info"><text>最近出错</text><text>{{word.lastErrorDate}}</text></view>
+      <view class="info"><text>累计出错</text><text>{{word.errorCount}}次</text></view>
+      <view class="info"><text>已复习</text><text>{{word.reviewCount}}次</text></view>
+      <view class="info"><text>下次复习</text><text>{{word.mastered ? '已阶段性掌握' : word.nextReviewDate}}</text></view>
+      <view wx:if="word.mastered" class="hint">听写再次出错时，重新录入这个字就会恢复复习计划。</view>
+    </view>
+    <view class="card stack" wx:if="editing">
+      <view>修改提示词语</view><textarea value="{{phrases}}" bindinput="input" maxlength="260" disabled="{{saving}}" auto-height />
+      <view class="hint">用顿号分隔，每个词语都应包含“{{word.character}}”。编辑词语不会改变复习进度；汉字本身不可改写。</view>
+      <button class="primary" bindtap="save" loading="{{saving}}" disabled="{{saving}}">保存词语</button><button class="ghost" bindtap="cancelEdit" disabled="{{saving}}">取消</button>
+    </view>
+    <button wx:else class="ghost edit-button" bindtap="edit">编辑提示词语</button>
+    <view class="delete-link" bindtap="remove">删除这个错字</view>
+    <view class="section">每次练习都留在这里</view>
+    <view class="card history-card">
+      <view wx:for="{{history}}" wx:key="id" class="history-row"><view class="history-date">{{item.date}}</view><view>{{item.label}}</view><view wx:if="item.nextReviewDate" class="hint">下次：{{item.nextReviewDate}}</view></view>
+      <button wx:if="hasMore" class="secondary small" bindtap="more" loading="{{loadingMore}}" disabled="{{loadingMore}}">查看更多记录</button>
+    </view>
+  </block>
+</view>
